@@ -11,13 +11,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Conexión a MySQL en XAMPP
+require('dotenv').config();
+const mysql = require('mysql2');
+
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '', // usualmente vacío en XAMPP
-    database: 'c21100487'
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT
 });
+
 
 // Verificar conexión
 db.connect(err => {
