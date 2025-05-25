@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lote de Carros</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <img src="Dodge_logo.jpg" alt="Logo" class="logo-top-left">
+    <img src="Dodge_car.jpg" alt="Carro" class="logo-bottom-right">
+
+    <div class="container">
+        <h1>Lote de Carros</h1>
+
+        <form id="carForm">
+            <input type="hidden" id="carId">
+            <input type="text" id="marca" placeholder="Marca" required>
+            <input type="text" id="modelo" placeholder="Modelo" required>
+            <input type="number" id="año" placeholder="Año" required>
+            <input type="text" id="tipo_motor" placeholder="Tipo de motor" required>
+            <input type="number" id="precio_usd" placeholder="Precio USD" required>
+            <button type="submit">Guardar</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Año</th>
+                    <th>Motor</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="carTableBody"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const form = document.getElementById('carForm');
+        const tableBody = document.getElementById('carTableBody');
+
+        const fetchCars = async () => {
+            const res = await fetch('/carros');
+            const cars = await res.json();
+            tableBody.innerHTML = '';
+            cars.forEach(car => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${car.id}</td>
+                        <td>${car.marca}</td>
+                        <td>${car.modelo}</td>
+                        <td>${car.año}</td>
+                        <td>${car.tipo_motor}</td>
+                        <td>$${car.precio_usd}</td>
+                        <td>
+                            <button onclick='editCar(${JSON.stringify(car)})'>Editar</button>
+                            <button onclick='deleteCar(${car.id})'>Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        };
+
+        const editCar = (car) => {
+            form.carId.value = car.id;
+            form.marca.value = car.marca;
+            form.modelo.value = car.modelo;
+            form.año.value = car.año;
+            form.tipo_motor.value = car.tipo_motor;
+            form.precio_usd.value = car.precio_usd;
+        };
+
+        const deleteCar = async (id) => {
+            await fetch(`/carros/${id}`, { method: 'DELETE' });
+            fetchCars();
+        };
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const car = {
+                marca: form.marca.value,
+                modelo: form.modelo.value,
+                año: form.año.value,
+                tipo_motor: form.tipo_motor.value,
+                precio_usd: form.precio_usd.value
+            };
+
+            const id = form.carId.value;
+            if (id) {
+                await fetch(`/carros/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(car)
+                });
+            } else {
+                await fetch('/carros', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(car)
+                });
+            }
+
+            form.reset();
+            fetchCars();
+        };
+
+        fetchCars();
+    </script>
+</body>
+</html>
