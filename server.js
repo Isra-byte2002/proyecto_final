@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 require('dotenv').config();
+const mysql = require('mysql2');
 
 const db = mysql.createConnection({
     host: process.env.MYSQLHOST,
@@ -48,7 +49,7 @@ app.get('/carros', (req, res) => {
 app.post('/carros', (req, res) => {
     const { marca, modelo, año, tipo_motor, precio_usd } = req.body;
     db.query(
-        'INSERT INTO carros (marca, modelo, año, tipo_motor, precio_usd) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO carros (marca, modelo, anio, tipo_motor, precio_usd) VALUES (?, ?, ?, ?, ?)',
         [marca, modelo, año, tipo_motor, precio_usd],
         (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
@@ -62,7 +63,7 @@ app.put('/carros/:id', (req, res) => {
     const { id } = req.params;
     const { marca, modelo, año, tipo_motor, precio_usd } = req.body;
     db.query(
-        'UPDATE carros SET marca = ?, modelo = ?, año = ?, tipo_motor = ?, precio_usd = ? WHERE id = ?',
+        'UPDATE carros SET marca = ?, modelo = ?, anio = ?, tipo_motor = ?, precio_usd = ? WHERE id = ?',
         [marca, modelo, año, tipo_motor, precio_usd, id],
         (err) => {
             if (err) return res.status(500).json({ error: err.message });
